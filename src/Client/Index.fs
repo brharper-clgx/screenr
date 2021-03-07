@@ -1,124 +1,118 @@
 module Index
 
+open Client.Types
 open Elmish
-open Fable.Remoting.Client
-open Shared
+
+type Step =
+    | Names = 1
+    | Actor = 2
+    | Genre = 3
+    | Decade = 4
+    | Result = 5
+
+module Step =
+    let next (step: Step) = step |> int |> (+) 1 |> enum<Step>
 
 type State =
-    { Todos: Todo list
-      Input: string }
+    {
+        Actor: Input<string>
+        CurrentStep: Step
+        Decade: Input<string * string>
+        Genre: Input<string>
+        Name: Input<string>
+        Names: string list
+    }
 
 type Msg =
-    | GotTodos of Todo list
-    | SetInput of string
-    | AddTodo
-    | AddedTodo of Todo
+    | UserChangedName of string
+    | UserChoseActor of string
+    | UserChoseDecade of string * string
+    | UserChoseGenre of string
+    | UserClickedAddName of string
+    | UserClickedDeleteName of string
+    | UserClickedNext
 
-let todosApi =
-    Remoting.createApi()
-    |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.buildProxy<ITodosApi>
+let init (): State * Cmd<Msg> =
+    let state =
+        {
+            Actor = Input.NotEditing
+            CurrentStep = Step.Names
+            Decade = Input.NotEditing
+            Genre = Input.NotEditing
+            Name = Input.NotEditing
+            Names = []
+        }
 
-let init(): State * Cmd<Msg> =
-    let model =
-        { Todos = []
-          Input = "" }
-    let cmd = Cmd.OfAsync.perform todosApi.getTodos () GotTodos
-    model, cmd
+    state, Cmd.none
 
 let update (msg: Msg) (state: State): State * Cmd<Msg> =
     match msg with
-    | GotTodos todos ->
-        { state with Todos = todos }, Cmd.none
-    | SetInput value ->
-        { state with Input = value }, Cmd.none
-    | AddTodo ->
-        let todo = Todo.create state.Input
-        let cmd = Cmd.OfAsync.perform todosApi.addTodo todo AddedTodo
-        { state with Input = "" }, cmd
-    | AddedTodo todo ->
-        { state with Todos = state.Todos @ [ todo ] }, Cmd.none
+    | UserChangedName name -> { state with Name = Input.Editing name }, Cmd.none
+    | UserChoseActor actor ->
+        { state with
+            Actor = Input.Editing actor
+        },
+        Cmd.none
+    | UserChoseDecade (startY, endY) ->
+        { state with
+            Decade = Input.Editing(startY, endY)
+        },
+        Cmd.none
+    | UserChoseGenre genre ->
+        { state with
+            Genre = Input.Editing genre
+        },
+        Cmd.none
+    | UserClickedAddName name ->
+        { state with
+            Names = name :: state.Names
+        },
+        Cmd.none
+    | UserClickedDeleteName name ->
+        { state with
+            Names = state.Names |> List.filter ((<>) name)
+        },
+        Cmd.none
+    | UserClickedNext ->
+        match state.CurrentStep with
+        | Step.Decade -> state, Cmd.none // Todo: Make API Call
+        | _ ->
+            { state with
+                CurrentStep = Step.next state.CurrentStep
+            },
+            Cmd.none
 
 open Feliz
 open Feliz.Bulma
+open Client.Styles
+open Client.Components
 
-let navBrand =
-    Bulma.navbarBrand.div [
-        Bulma.navbarItem.a [
-            prop.href "https://safe-stack.github.io/"
-            navbarItem.isActive
+//let tagsInput =
+
+
+let render (state: State) (dispatch: Msg -> unit) =
+    Html.div [
+        Bulma.hero [
+            hero.isFullHeight
+            prop.className Bulma.IsSuccess
             prop.children [
-                Html.img [
-                    prop.src "/favicon.png"
-                    prop.alt "Logo"
+                Bulma.heroHead [
+                    Navbar.render
                 ]
-            ]
-        ]
-    ]
-
-let containerBox (model : State) (dispatch : Msg -> unit) =
-    Bulma.box [
-        Bulma.content [
-            Html.ol [
-                for todo in model.Todos do
-                    Html.li [ prop.text todo.Description ]
-            ]
-        ]
-        Bulma.field.div [
-            field.isGrouped
-            prop.children [
-                Bulma.control.p [
-                    control.isExpanded
-                    prop.children [
-                        Bulma.input.text [
-                            prop.value model.Input
-                            prop.placeholder "What needs to be done?"
-                            prop.onChange (fun x -> SetInput x |> dispatch)
-                        ]
-                    ]
-                ]
-                Bulma.control.p [
-                    Bulma.button.a [
-                        color.isPrimary
-                        prop.disabled (Todo.isValid model.Input |> not)
-                        prop.onClick (fun _ -> dispatch AddTodo)
-                        prop.text "Add"
-                    ]
-                ]
-            ]
-        ]
-    ]
-
-let render (state : State) (dispatch : Msg -> unit) =
-    Bulma.hero [
-        hero.isFullHeight
-        color.isPrimary
-        prop.style [
-            style.backgroundSize "cover"
-            style.backgroundImageUrl "https://unsplash.it/1200/900?random"
-            style.backgroundPosition "no-repeat center center fixed"
-        ]
-        prop.children [
-            Bulma.heroHead [
-                Bulma.navbar [
-                    Bulma.container [
-                        navBrand
-                    ]
-                ]
-            ]
-            Bulma.heroBody [
-                Bulma.container [
-                    Bulma.column [
-                        column.is6
-                        column.isOffset3
-                        prop.children [
-                            Bulma.title [
-                                text.hasTextCentered
-                                prop.text "Screenr"
-                            ]
-                            containerBox state dispatch
-                        ]
-                    ]
+                Bulma.heroBody [
+                   Bulma.container [
+                       prop.classes [ Bulma.HasTextCentered ]
+                       prop.children [
+                           Html.p [
+                                prop.className Bulma.Title
+                                prop.text "Step One:"
+                           ]
+                           Html.p [
+                                prop.className Bulma.Subtitle
+                                prop.text "Who's watching?"
+                           ]
+                       ]
+                   ]
                 ]
             ]
         ]

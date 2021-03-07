@@ -7,11 +7,18 @@
     <ItemGroup>
         <None Include="index.html" />
         <None Include="paket.references" />
+        <Compile Include="Types\Input.fs" />
+        <Compile Include="Types\MovieDb.fs" />
+        <Compile Include="Styles.fs" />
+        <Compile Include="Components\Navbar.fs" />
         <Compile Include="Index.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Shared\Shared.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Zanaptak.TypedCssClasses" Version="0.4.0" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
