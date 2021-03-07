@@ -5,10 +5,12 @@
         <DefineConstants>FABLE_COMPILER</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
+        <Content Include="public\favicon.png" />
+        <Content Include="public\scss\_variables.scss" />
+        <Content Include="public\styles.scss" />
         <None Include="index.html" />
         <None Include="paket.references" />
         <Compile Include="Types\Input.fs" />
-        <Compile Include="Types\MovieDb.fs" />
         <Compile Include="Styles.fs" />
         <Compile Include="Components\Navbar.fs" />
         <Compile Include="Index.fs" />

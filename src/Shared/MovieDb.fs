@@ -1,4 +1,4 @@
-﻿module Client.Types.MovieDb
+﻿module Shared.MovieDb
 
 type Genre = int * string
 
@@ -28,6 +28,7 @@ module Genre =
             37, "Western"
         ]
 
+
 type Actor = int * string
 
 type Movie =
@@ -36,7 +37,7 @@ type Movie =
         Overview: string
     }
 
-type Result =
+type DiscoverResult =
     {
         Results: Movie list
     }

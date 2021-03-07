@@ -5,6 +5,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Shared.fs" />
+    <Compile Include="Casing.fs" />
+    <Compile Include="Extensions\List.fs" />
+    <Compile Include="Extensions\String.fs" />
+    <Compile Include="MovieDb.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

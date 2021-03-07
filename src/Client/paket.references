@@ -6,6 +6,7 @@ Fable.Elmish.HMR
 Fable.FontAwesome.Free
 Fable.React
 Fable.Remoting.Client
+Zanaptak.TypedCssClasses
 Feliz
 Feliz.Bulma
-Zanaptak.TypedCssClasses
+Feliz.Bulma.TagsInput
