@@ -10,7 +10,6 @@
         <Content Include="public\styles.scss" />
         <None Include="index.html" />
         <None Include="paket.references" />
-        <Compile Include="Types\Input.fs" />
         <Compile Include="Styles.fs" />
         <Compile Include="Components\Navbar.fs" />
         <Compile Include="Index.fs" />

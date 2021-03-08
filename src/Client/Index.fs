@@ -2,9 +2,18 @@ module Index
 
 open System
 open Elmish
+open Fable.Remoting.Client
+open Shared
+open Shared.ApiContract
 open Shared.MovieDb
 open Shared.Extensions
 open Shared.Extensions.String.Operators
+
+
+let api =
+    Remoting.createApi ()
+    |> Remoting.withRouteBuilder Route.builder
+    |> Remoting.buildProxy<IMovieApi>
 
 
 type Step =
@@ -12,7 +21,8 @@ type Step =
     | Genres = 2
     | Actor = 3
     | Decade = 4
-    | Result = 5
+    | Submitting = 5
+    | Result = 6
 
 module Step =
     let next (step: Step) = step |> int |> (+) 1 |> enum<Step>
@@ -21,16 +31,18 @@ type State =
     {
         Actor: string
         CurrentStep: Step
-        Decade: string * string
+        Decade: string
         Genres: string list
         Result: string
         Watchers: string list
     }
 
 type Msg =
+    | ServerError of exn
+    | ServerReturnedRecommendation of string
     | UserAddedWatcher of string list
     | UserChangedActor of string
-    | UserChoseDecade of string * string
+    | UserChoseDecade of string
     | UserAddedGenre of string list
     | UserClickedAddName of string
     | UserClickedDeleteName of string
@@ -41,9 +53,9 @@ let init (): State * Cmd<Msg> =
         {
             Actor = ""
             CurrentStep = Step.Watchers
-            Decade = "", ""
+            Decade = ""
             Genres = []
-            Result = "28 Days Later"
+            Result = ""
             Watchers = []
         }
 
@@ -51,10 +63,13 @@ let init (): State * Cmd<Msg> =
 
 let update (msg: Msg) (state: State): State * Cmd<Msg> =
     match msg with
+    | ServerError _ -> state, Cmd.none
+    | ServerReturnedRecommendation r ->
+        { state with Result = r; CurrentStep = Step.Result }, Cmd.none
     | UserAddedGenre genres -> { state with Genres = genres }, Cmd.none
     | UserAddedWatcher names -> { state with Watchers = names }, Cmd.none
     | UserChangedActor actor -> { state with Actor = actor }, Cmd.none
-    | UserChoseDecade (startY, endY) -> { state with Decade = startY, endY }, Cmd.none
+    | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
     | UserClickedAddName name ->
         { state with
             Watchers = name :: state.Watchers
@@ -77,7 +92,15 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
                 Watchers = List.shuffle state.Watchers
             },
             Cmd.none
-        | Step.Decade -> incrementedState, Cmd.none // Todo: Make API Call
+        | Step.Decade ->
+            let details =
+                {
+                    Actor = state.Actor
+                    Decade = state.Decade
+                    Genres = state.Genres
+                }
+
+            incrementedState, Cmd.OfAsync.either api.GetMovie details ServerReturnedRecommendation ServerError
         | _ -> incrementedState, Cmd.none
 
 open Feliz
@@ -144,7 +167,7 @@ let genresStep dispatch state =
     Html.div [
         prop.hidden (state.CurrentStep <> Step.Genres)
         prop.children [
-            stepTitle "Step Two:" $"{watcher}, what genre movie?"
+            stepTitle "Step Two:" $"{watcher}, pick a genre"
             Html.div [
                 prop.classes [
                     Bulma.Column
@@ -185,7 +208,7 @@ let actorStep dispatch state =
     Html.div [
         prop.hidden (state.CurrentStep <> Step.Actor)
         prop.children [
-            stepTitle "Step Three:" $"{watcher}, name an actor / actress?"
+            stepTitle "Step Three:" $"{watcher}, name an actor / actress."
             Html.div [
                 prop.classes [
                     Bulma.Column
@@ -214,12 +237,13 @@ let decadeStep dispatch state =
         Html.option [
             prop.value decade
             prop.text decade
+            prop.onChange (fun v -> v |> UserChoseDecade |> dispatch)
         ]
 
     Html.div [
         prop.hidden (state.CurrentStep <> Step.Decade)
         prop.children [
-            stepTitle "Step Three:" $"{watcher}, name an actor / actress?"
+            stepTitle "Step Three:" $"{watcher}, pick a decade."
             Html.div [
                 prop.classes [
                     Bulma.Column
@@ -227,12 +251,20 @@ let decadeStep dispatch state =
                     Bulma.IsOneThird
                 ]
                 prop.children [
-                    [ "2020s"; "2010s"; "2000s"; "1990s"; "1980s"; "1970s"; "1960s" ]
+                    Decades.allLabels
                     |> List.map option
                     |> Bulma.select
                 ]
             ]
             nextBtn dispatch (String.IsNullOrWhiteSpace state.Actor)
+        ]
+    ]
+
+let loading state =
+    Html.div [
+        prop.hidden (state.CurrentStep <> Step.Submitting)
+        prop.children [
+            Bulma.title.h2 "Thinking..."
         ]
     ]
 
@@ -243,6 +275,8 @@ let result state =
             Bulma.title.h2 $"Tonight you'll watch: {state.Result}"
         ]
     ]
+
+
 
 let render (state: State) (dispatch: Msg -> unit) =
     Html.div [
@@ -260,6 +294,7 @@ let render (state: State) (dispatch: Msg -> unit) =
                             genresStep dispatch state
                             actorStep dispatch state
                             decadeStep dispatch state
+                            loading state
                             result state
                         ]
                     ]
