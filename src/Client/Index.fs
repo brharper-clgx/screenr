@@ -63,7 +63,7 @@ let init (): State * Cmd<Msg> =
 
 let update (msg: Msg) (state: State): State * Cmd<Msg> =
     match msg with
-    | ServerError _ -> state, Cmd.none
+    | ServerError ex -> { state with Result = ex.Message; CurrentStep = Step.Result }, Cmd.none
     | ServerReturnedRecommendation r ->
         { state with Result = r; CurrentStep = Step.Result }, Cmd.none
     | UserAddedGenre genres -> { state with Genres = genres }, Cmd.none
@@ -237,7 +237,6 @@ let decadeStep dispatch state =
         Html.option [
             prop.value decade
             prop.text decade
-            prop.onChange (fun v -> v |> UserChoseDecade |> dispatch)
         ]
 
     Html.div [
@@ -251,9 +250,13 @@ let decadeStep dispatch state =
                     Bulma.IsOneThird
                 ]
                 prop.children [
-                    Decades.allLabels
-                    |> List.map option
-                    |> Bulma.select
+                    Bulma.select [
+                        prop.onChange (fun v -> v |> UserChoseDecade |> dispatch)
+
+                        Decades.allLabels
+                        |> List.map option
+                        |> prop.children
+                    ]
                 ]
             ]
             nextBtn dispatch (String.IsNullOrWhiteSpace state.Actor)

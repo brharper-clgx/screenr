@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <Compile Include="Config.fs" />
+    <Compile Include="Http.fs" />
     <Compile Include="MoviesApi.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

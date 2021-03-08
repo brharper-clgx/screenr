@@ -1,10 +1,8 @@
 ﻿module Shared.MovieDb
 
-type Genre = int * string
-
 module Genre =
     // https://api.themoviedb.org/3/genre/movie/list?language=en-US
-    let all: Genre list =
+    let all =
         [
             28, "Action"
             12, "Adventure"
@@ -28,16 +26,28 @@ module Genre =
             37, "Western"
         ]
 
+    let labelToId (label: string) =
+        all
+        |> List.filter (fun (_, l) -> l = label)
+        |> List.map fst
+        |> List.head
 
-type Actor = int * string
+[<CLIMutable>]
+type MovieDbResult<'t> =
+    {
+        Results: 't list
+    }
 
+[<CLIMutable>]
+type Actor =
+    {
+        Id: int
+        Name: string
+    }
+
+[<CLIMutable>]
 type Movie =
     {
         Title: string
         Overview: string
-    }
-
-type DiscoverResult =
-    {
-        Results: Movie list
     }

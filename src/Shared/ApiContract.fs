@@ -1,5 +1,6 @@
 ﻿module Shared.ApiContract
 
+[<CLIMutable>]
 type MovieDetails =
     {
         Actor: string
