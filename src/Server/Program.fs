@@ -5,19 +5,17 @@ open Fable.Remoting.Giraffe
 open Microsoft.Extensions.DependencyInjection
 open Saturn
 
-open Server.Config
 open Shared.ApiContract
-
 open Server.Apis
 
 let configureServices (services : IServiceCollection) =
     services
-        .AddSingleton<IConfigProvider, ConfigProvider>()
+        .AddSingleton<IMovieDbApi, MovieDbApi>()
 
 let webApp =
     Remoting.createApi()
     |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.fromReader MoviesApi.reader
+    |> Remoting.fromReader InternalApi.reader
     |> Remoting.buildHttpHandler
 
 let app =

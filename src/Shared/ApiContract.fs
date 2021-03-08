@@ -8,9 +8,9 @@ type MovieDetails =
         Decade: string
     }
 
-type IMovieApi =
+type IInternalApi =
     {
-         GetMovie: MovieDetails -> Async<string>
+         GetRecommendation: MovieDetails -> Async<string>
     }
 
 module Route =

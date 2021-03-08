@@ -13,7 +13,7 @@ open Shared.Extensions.String.Operators
 let api =
     Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.buildProxy<IMovieApi>
+    |> Remoting.buildProxy<IInternalApi>
 
 
 type Step =
@@ -100,7 +100,7 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
                     Genres = state.Genres
                 }
 
-            incrementedState, Cmd.OfAsync.either api.GetMovie details ServerReturnedRecommendation ServerError
+            incrementedState, Cmd.OfAsync.either api.GetRecommendation details ServerReturnedRecommendation ServerError
         | _ -> incrementedState, Cmd.none
 
 open Feliz
