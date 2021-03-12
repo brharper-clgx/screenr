@@ -4,7 +4,7 @@
 type MovieDetails =
     {
         Actor: string
-        Genres: string list
+        Genre: string
         Decade: string
     }
 

@@ -32,18 +32,20 @@ type State =
         Actor: string
         CurrentStep: Step
         Decade: string
-        Genres: string list
+        Genre: string
         Result: string
         Watchers: string list
+        WatcherInput: string
     }
 
 type Msg =
     | ServerError of exn
     | ServerReturnedRecommendation of string
-    | UserAddedWatcher of string list
+    | UserAddedWatcher
     | UserChangedActor of string
+    | UserChangedWatcherInput of string
     | UserChoseDecade of string
-    | UserAddedGenre of string list
+    | UserAddedGenre of string
     | UserClickedAddName of string
     | UserClickedDeleteName of string
     | UserClickedNext
@@ -54,9 +56,10 @@ let init (): State * Cmd<Msg> =
             Actor = ""
             CurrentStep = Step.Watchers
             Decade = ""
-            Genres = []
+            Genre = ""
             Result = ""
             Watchers = []
+            WatcherInput = ""
         }
 
     state, Cmd.none
@@ -75,9 +78,15 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
             CurrentStep = Step.Result
         },
         Cmd.none
-    | UserAddedGenre genres -> { state with Genres = genres }, Cmd.none
-    | UserAddedWatcher names -> { state with Watchers = names }, Cmd.none
+    | UserAddedGenre genre -> { state with Genre = genre }, Cmd.none
+    | UserAddedWatcher ->
+        { state with
+            Watchers = state.WatcherInput :: state.Watchers
+            WatcherInput = ""
+        },
+        Cmd.none
     | UserChangedActor actor -> { state with Actor = actor }, Cmd.none
+    | UserChangedWatcherInput input -> { state with WatcherInput = input }, Cmd.none
     | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
     | UserClickedAddName name ->
         { state with
@@ -106,7 +115,7 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
                 {
                     Actor = state.Actor
                     Decade = state.Decade
-                    Genres = state.Genres
+                    Genre = state.Genre
                 }
 
             incrementedState, Cmd.OfAsync.either api.GetRecommendation details ServerReturnedRecommendation ServerError
@@ -150,24 +159,47 @@ let nextBtn dispatch disabled =
 
 let watchersStep dispatch state =
     Html.div [
-        prop.hidden (state.CurrentStep <> Step.Watchers)
         prop.children [
             stepTitle "Step One:" "Who's watching?"
             inputContainer [
-                TagsInput.input [
-                    tagsInput.placeholder "List everyone watching... [use , or ENTER]"
-                    tagsInput.defaultValue state.Watchers
-                    tagsInput.onTagsChanged (fun v -> v |> UserAddedWatcher |> dispatch)
-                    tagsInput.tagProperties [
-                        tag.isMedium
-                        tag.isRounded
-                        color.isInfo
+                Bulma.field.div [
+                    prop.classes [
+                        Bulma.HasAddons
+                        Bulma.IsJustifyContentCenter
                     ]
-                    tagsInput.allowDuplicates false
+                    prop.children [
+                        Bulma.control.div [
+                            Bulma.input.text [
+                                prop.value state.WatcherInput
+                                prop.onChange (fun v -> v |> Msg.UserChangedWatcherInput |> dispatch)
+                            ]
+                        ]
+                        Bulma.control.div [
+                            Bulma.button.a [
+                                prop.classes [ Bulma.IsInfo ]
+                                prop.onClick (fun _ -> Msg.UserAddedWatcher |> dispatch)
+                                prop.children [
+                                    Bulma.icon [
+                                        icon.isSmall
+                                        prop.children [
+                                            Html.i [
+                                                prop.classes [ FA.Fa; FA.FaPlus ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
+
+                state.Watchers |> List.map Bulma.tag |> Html.div
+
             ]
             nextBtn dispatch (state.Watchers.Length < 1)
+
         ]
+
     ]
 
 let genresStep dispatch state =
@@ -177,29 +209,23 @@ let genresStep dispatch state =
         | watcher :: _ -> watcher
 
     Html.div [
-        prop.hidden (state.CurrentStep <> Step.Genres)
         prop.children [
             stepTitle "Step Two:" (sprintf "%s, pick a genre." watcher)
             inputContainer [
-                TagsInput.input [
-                    tagsInput.placeholder "List genres... [use , or ENTER]"
-                    tagsInput.defaultValue []
-                    tagsInput.onTagsChanged (fun v -> v |> UserAddedGenre |> dispatch)
-                    tagsInput.tagProperties [
-                        tag.isMedium
-                        tag.isRounded
-                        color.isInfo
-                    ]
-                    tagsInput.allowDuplicates false
-                    tagsInput.allowOnlyAutoCompleteValues true
-                    tagsInput.autoCompleteSource (fun input ->
-                        Genre.all
-                        |> List.map snd
-                        |> List.filter (fun genre -> genre |<~ input)
-                        |> async.Return)
+                Bulma.select [
+                    prop.onChange (fun v -> v |> Msg.UserAddedGenre |> dispatch)
+
+                    Genre.all
+                    |> List.map (fun (_, s) ->
+                        Html.option [
+                            prop.value s
+                            prop.text s
+                        ])
+                    |> prop.children
+
                 ]
             ]
-            nextBtn dispatch (state.Genres.Length < 1)
+            nextBtn dispatch (state.Genre = "")
         ]
     ]
 
@@ -211,7 +237,6 @@ let actorStep dispatch state =
         | _ :: (watcher :: _) -> watcher
 
     Html.div [
-        prop.hidden (state.CurrentStep <> Step.Actor)
         prop.children [
             stepTitle "Step Three:" (sprintf "%s, name an actor / actress." watcher)
             inputContainer [
@@ -238,7 +263,6 @@ let decadeStep dispatch state =
         ]
 
     Html.div [
-        prop.hidden (state.CurrentStep <> Step.Decade)
         prop.children [
             stepTitle "Step Four:" (sprintf "%s, pick a decade." watcher)
             inputContainer [
@@ -254,9 +278,8 @@ let decadeStep dispatch state =
         ]
     ]
 
-let loading state =
+let loading =
     Html.div [
-        prop.hidden (state.CurrentStep <> Step.Submitting)
         prop.children [
             Bulma.title.h2 "Thinking..."
         ]
@@ -264,7 +287,6 @@ let loading state =
 
 let result state =
     Html.div [
-        prop.hidden (state.CurrentStep <> Step.Result)
         prop.children [
             state.Result
             |> sprintf "Tonight you'll watch: %s"
@@ -285,16 +307,23 @@ let render (state: State) (dispatch: Msg -> unit) =
                     Bulma.container [
                         prop.classes [ Bulma.HasTextCentered ]
                         prop.children [
-                            // Use hidden attribute instead of match expression as otherwise tagInputs get merged
-                            watchersStep dispatch state
-                            genresStep dispatch state
-                            actorStep dispatch state
-                            decadeStep dispatch state
-                            loading state
-                            result state
+                            match state.CurrentStep with
+                            | Step.Watchers -> watchersStep dispatch state
+                            | Step.Genres -> genresStep dispatch state
+                            | Step.Actor -> actorStep dispatch state
+                            | Step.Decade -> decadeStep dispatch state
+                            | Step.Submitting -> loading
+                            | Step.Result -> result state
+                            | _ -> Html.none
+
                         ]
+
                     ]
+
                 ]
+
             ]
+
         ]
+
     ]

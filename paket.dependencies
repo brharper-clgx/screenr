@@ -6,7 +6,6 @@ nuget Expecto.FsCheck
 nuget Fable.Remoting.Giraffe
 nuget Feliz
 nuget Feliz.Bulma
-nuget Feliz.Bulma.TagsInput
 nuget Saturn
 nuget Expecto
 

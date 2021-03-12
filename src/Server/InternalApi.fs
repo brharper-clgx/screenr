@@ -19,7 +19,7 @@ let getRecommendation (api: IMovieDbApi) =
 
             let (startYear, endYear) = details.Decade |> Decades.labelToRange
 
-            let! discoverResult = api.DiscoverResult actorIdOp (startYear, endYear) details.Genres
+            let! discoverResult = api.DiscoverResult actorIdOp (startYear, endYear) [ details.Genre ]
 
             return
                 match discoverResult with
