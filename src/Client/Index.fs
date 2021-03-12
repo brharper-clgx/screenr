@@ -46,8 +46,6 @@ type Msg =
     | UserChangedWatcherInput of string
     | UserChoseDecade of string
     | UserAddedGenre of string
-    | UserClickedAddName of string
-    | UserClickedDeleteName of string
     | UserClickedNext
 
 let init (): State * Cmd<Msg> =
@@ -88,16 +86,6 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
     | UserChangedActor actor -> { state with Actor = actor }, Cmd.none
     | UserChangedWatcherInput input -> { state with WatcherInput = input }, Cmd.none
     | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
-    | UserClickedAddName name ->
-        { state with
-            Watchers = name :: state.Watchers
-        },
-        Cmd.none
-    | UserClickedDeleteName name ->
-        { state with
-            Watchers = state.Watchers |> List.filter ((<>) name)
-        },
-        Cmd.none
     | UserClickedNext ->
         let incrementedState =
             { state with
