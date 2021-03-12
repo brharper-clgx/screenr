@@ -7,14 +7,11 @@ open Shared
 open Shared.ApiContract
 open Shared.MovieDb
 open Shared.Extensions
-open Shared.Extensions.String.Operators
-
 
 let api =
     Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
     |> Remoting.buildProxy<IInternalApi>
-
 
 type Step =
     | Watchers = 1
@@ -111,6 +108,7 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
 
 open Feliz
 open Feliz.Bulma
+open Feliz.Bulma.PageLoader
 open Client.Styles
 open Client.Components
 
@@ -265,14 +263,6 @@ let decadeStep dispatch state =
             nextBtn dispatch (String.IsNullOrWhiteSpace state.Actor)
         ]
     ]
-
-let loading =
-    Html.div [
-        prop.children [
-            Bulma.title.h2 "Thinking..."
-        ]
-    ]
-
 let result state =
     Html.div [
         prop.children [
@@ -281,8 +271,6 @@ let result state =
             |> Bulma.title.h2
         ]
     ]
-
-
 
 let render (state: State) (dispatch: Msg -> unit) =
     Html.div [
@@ -300,9 +288,16 @@ let render (state: State) (dispatch: Msg -> unit) =
                             | Step.Genres -> genresStep dispatch state
                             | Step.Actor -> actorStep dispatch state
                             | Step.Decade -> decadeStep dispatch state
-                            | Step.Submitting -> loading
                             | Step.Result -> result state
                             | _ -> Html.none
+
+                            PageLoader.pageLoader [
+                                pageLoader.isWarning
+                                if state.CurrentStep = Step.Submitting then pageLoader.isActive
+                                prop.children [
+                                    PageLoader.title "I am loading some awesomeness"
+                                ]
+                            ]
 
                         ]
 

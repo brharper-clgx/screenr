@@ -6,6 +6,7 @@ nuget Expecto.FsCheck
 nuget Fable.Remoting.Giraffe
 nuget Feliz
 nuget Feliz.Bulma
+nuget Feliz.Bulma.PageLoader 1.0.0
 nuget Saturn
 nuget Expecto
 

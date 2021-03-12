@@ -45,3 +45,33 @@ You'll need to get permissions to deploy to the Azure resource.
 ```bash
 dotnet fake build -t azure
 ```
+
+## Adding Packages
+Dependencies can be installed from the project root using _Paket_ and _Npm_.
+
+### Adding Package to the Server
+Add nuget package:
+
+```
+dotnet paket add <package> -p Server
+```
+
+### Adding Package to the Client
+
+Front end dependencies often require two packages, one _Nuget_ and one _NPM_. As an example, let's install the [Bulma PageLoader](https://dzoukr.github.io/Feliz.Bulma/#/pageloader)....
+
+Nuget:
+```
+dotnet paket add Feliz.Bulma.PageLoader --version 1.0.0 -p Client
+```
+
+Npm:
+```
+npm i bulma-pageloader
+```
+
+Furthermore, front-end packages might also require styling. In the case of the [Bulma PageLoader](https://dzoukr.github.io/Feliz.Bulma/#/pageloader) we add the following to `src/Client/public/styles.scss`:
+
+```
+@import "~bulma-pageloader/dist/css/bulma-pageloader.min.css";
+```
