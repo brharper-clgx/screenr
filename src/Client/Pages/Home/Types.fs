@@ -26,7 +26,7 @@ type Msg =
     | ServerError of exn
     | ServerReturnedRecommendation of string
     | UserAddedWatcher
-    | UserChangedActor of string
+    | UserSelectedActor of string
     | UserChangedWatcherInput of string
     | UserChoseDecade of string
     | UserAddedGenre of string

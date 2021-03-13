@@ -1,5 +1,6 @@
 ﻿module Client.Pages.Home.Component
 
+open System
 open Client.Pages.Home.Types
 open Elmish
 open Fable.Remoting.Client
@@ -41,12 +42,16 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
         Cmd.none
     | UserAddedGenre genre -> { state with Genre = genre }, Cmd.none
     | UserAddedWatcher ->
-        { state with
-            Watchers = state.WatcherInput :: state.Watchers
-            WatcherInput = ""
-        },
-        Cmd.none
-    | UserChangedActor actor -> { state with Actor = actor }, Cmd.none
+        if String.IsNullOrWhiteSpace state.WatcherInput
+        then
+            state, Cmd.none
+        else
+            { state with
+                Watchers = state.WatcherInput :: state.Watchers
+                WatcherInput = ""
+            },
+            Cmd.none
+        | UserSelectedActor actor -> { state with Actor = actor }, Cmd.none
     | UserChangedWatcherInput input -> { state with WatcherInput = input }, Cmd.none
     | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
     | UserClickedNext ->

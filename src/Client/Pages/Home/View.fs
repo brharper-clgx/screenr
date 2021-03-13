@@ -1,11 +1,12 @@
 ﻿module Client.Pages.Home.View
 
 open System
+open Browser.Types
 open Feliz
 open Feliz.Bulma
 open Feliz.Bulma.PageLoader
-open Shared.Extensions
 open Shared
+open Shared.Extensions
 open Shared.MovieDb
 open Client.Styles
 open Client.Components
@@ -44,46 +45,21 @@ let nextBtn dispatch disabled =
 
 let watchersStep dispatch state =
     Html.div [
-        prop.children [
-            stepTitle "Step One:" "Who's watching?"
-            inputContainer [
-                Bulma.field.div [
-                    prop.classes [
-                        Bulma.HasAddons
-                        Bulma.IsJustifyContentCenter
-                    ]
-                    prop.children [
-                        Bulma.control.div [
-                            Bulma.input.text [
-                                prop.value state.WatcherInput
-                                prop.onChange (fun v -> v |> Msg.UserChangedWatcherInput |> dispatch)
-                            ]
-                        ]
-                        Bulma.control.div [
-                            Bulma.button.a [
-                                prop.classes [ Bulma.IsInfo ]
-                                prop.onClick (fun _ -> Msg.UserAddedWatcher |> dispatch)
-                                prop.children [
-                                    Bulma.icon [
-                                        icon.isSmall
-                                        prop.children [
-                                            Html.i [
-                                                prop.classes [ FA.Fa; FA.FaPlus ]
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+        stepTitle "Step One:" "Who's watching?"
+        inputContainer [
+            Bulma.control.div [
+                Bulma.input.text [
+                    prop.value state.WatcherInput
+                    prop.placeholder "Use 'Enter' to add"
+                    prop.onChange (fun v -> v |> Msg.UserChangedWatcherInput |> dispatch)
+                    prop.onKeyPress (fun (k: KeyboardEvent) -> if k.key = "Enter" then dispatch Msg.UserAddedWatcher)
                 ]
-
-                state.Watchers |> List.map Bulma.tag |> Html.div
-
             ]
-            nextBtn dispatch (state.Watchers.Length < 1)
+
+            state.Watchers |> List.map Bulma.tag |> Html.div
 
         ]
+        nextBtn dispatch (state.Watchers.Length < 1)
 
     ]
 
@@ -129,7 +105,7 @@ let actorStep dispatch state =
             stepTitle "Step Three:" (sprintf "%s, name an actor / actress." watcher)
             inputContainer [
                 Bulma.input.text [
-                    prop.onChange (fun v -> v |> UserChangedActor |> dispatch)
+                    prop.onChange (fun v -> v |> UserSelectedActor |> dispatch)
                 ]
             ]
             nextBtn dispatch (String.IsNullOrWhiteSpace state.Actor)
@@ -201,15 +177,9 @@ let render (state: State) (dispatch: Msg -> unit) =
                                     PageLoader.title "I am loading some awesomeness"
                                 ]
                             ]
-
                         ]
-
                     ]
-
                 ]
-
             ]
-
         ]
-
     ]
