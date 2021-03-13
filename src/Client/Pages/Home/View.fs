@@ -27,11 +27,11 @@ let emptyOption =
 let stepTitle (title: string) (sub: string) =
     Html.div [
         Html.p [
-            prop.className Bulma.Title
+            prop.classes [ Bulma.IsSize1 ]
             prop.text title
         ]
         Html.p [
-            prop.className Bulma.Subtitle
+            prop.classes [ Bulma.IsSize3 ]
             prop.text sub
         ]
     ]
@@ -40,8 +40,14 @@ let inputContainer (contents: ReactElement list) =
     Html.div [
         prop.classes [
             Bulma.Column
-            Bulma.IsOffsetOneThird
-            Bulma.IsOneThird
+            Bulma.IsMobile
+            Bulma.IsOffsetOneThirdDesktop
+            Bulma.IsOneThirdDesktop
+            Bulma.IsOffsetOneQuarterTablet
+            Bulma.IsHalfTablet
+            Bulma.IsOffsetOneQuarterMobile
+            Bulma.IsHalfMobile
+
         ]
         prop.children contents
     ]
@@ -86,6 +92,7 @@ let watchersStep dispatch state =
         inputContainer [
             Bulma.control.div [
                 Bulma.input.text [
+                    input.isLarge
                     prop.value state.WatcherInput
                     prop.placeholder "Use 'Enter' to add"
                     prop.onChange (fun v -> v |> Msg.UserChangedWatcherInput |> dispatch)
@@ -108,6 +115,7 @@ let genresStep dispatch state =
             stepTitle "Step Two:" (sprintf "%s, pick a genre." watcher)
             inputContainer [
                 Bulma.select [
+                    select.isLarge
                     prop.onChange (fun v -> v |> Msg.UserAddedGenre |> dispatch)
 
                     Genre.all
@@ -136,6 +144,7 @@ let actorStep dispatch state =
             stepTitle "Step Three:" (sprintf "%s, name an actor / actress." watcher)
             inputContainer [
                 Bulma.input.text [
+                    input.isLarge
                     prop.onChange (fun v -> v |> UserSelectedActor |> dispatch)
                 ]
             ]
@@ -213,6 +222,13 @@ let render (state: State) (dispatch: Msg -> unit) =
                                 msg
                                 |> ErrorAlert.render (fun _ -> dispatch Msg.UserClickedDismissAlert)
                         ]
+                    ]
+                ]
+                Bulma.heroFoot [
+                    Html.a [
+                        prop.classes [ Bulma.IsSmall ]
+                        prop.href "https://www.flaticon.com/authors/iconixar"
+                        prop.text "Logo by iconixar"
                     ]
                 ]
             ]
