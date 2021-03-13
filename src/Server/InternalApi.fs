@@ -11,7 +11,7 @@ let getRecommendation (api: IMovieDbApi) =
 
             let actorIdOp =
                 match actorResult with
-                | Error _ -> None
+                 Error msg -> failwith msg
                 | Ok r ->
                     match r.Results with
                     | [] -> None
@@ -23,6 +23,7 @@ let getRecommendation (api: IMovieDbApi) =
 
             return
                 match discoverResult with
+                | Error msg -> failwith msg
                 | Ok r ->
                     match r.Results with
                     | [] -> "No results..."
@@ -31,10 +32,7 @@ let getRecommendation (api: IMovieDbApi) =
                         |> List.shuffle
                         |> List.head
                         |> fun m -> m.Title
-                | Error msg -> sprintf "Error retrieving recommendation: %s" msg
         }
-
-
 
 let reader =
     reader {

@@ -16,8 +16,9 @@ type State =
         Actor: string
         CurrentStep: Step
         Decade: string
+        ErrorMsg: string option
         Genre: string
-        Result: string
+        Result: string option
         Watchers: string list
         WatcherInput: string
     }
@@ -31,4 +32,5 @@ type Msg =
     | UserChoseDecade of string
     | UserClickedNext
     | UserClickedDeleteWatcher of string
+    | UserClickedDismissAlert
     | UserSelectedActor of string

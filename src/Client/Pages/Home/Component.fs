@@ -18,8 +18,9 @@ let init (): State * Cmd<Msg> =
             Actor = ""
             CurrentStep = Step.Watchers
             Decade = ""
+            ErrorMsg = None
             Genre = ""
-            Result = ""
+            Result = None
             Watchers = []
             WatcherInput = ""
         }
@@ -30,13 +31,14 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
     match msg with
     | ServerError ex ->
         { state with
-            Result = ex.Message
+            Result = None
+            ErrorMsg = Some ex.Message
             CurrentStep = Step.Result
         },
         Cmd.none
     | ServerReturnedRecommendation r ->
         { state with
-            Result = r
+            Result = Some r
             CurrentStep = Step.Result
         },
         Cmd.none
@@ -82,4 +84,6 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
             Watchers = state.Watchers |> List.filter ((<>) watcher)
         },
         Cmd.none
+    | UserClickedDismissAlert ->
+        init ()
     | UserSelectedActor actor -> { state with Actor = actor }, Cmd.none

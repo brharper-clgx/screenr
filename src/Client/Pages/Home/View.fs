@@ -12,6 +12,18 @@ open Client.Styles
 open Client.Components
 open Client.Pages.Home.Types
 
+let option (v: string) =
+    Html.option [
+        prop.value v
+        prop.text v
+    ]
+
+let emptyOption =
+    Html.option [
+        prop.value ""
+        prop.text " -- "
+    ]
+
 let stepTitle (title: string) (sub: string) =
     Html.div [
         Html.p [
@@ -52,7 +64,10 @@ let watchersStep dispatch state =
                 prop.children [
                     Html.text watcher
                     Html.button [
-                        prop.classes [ Bulma.IsSmall; Bulma.Delete ]
+                        prop.classes [
+                            Bulma.IsSmall
+                            Bulma.Delete
+                        ]
                         prop.onClick (fun _ ->
                             watcher
                             |> Msg.UserClickedDeleteWatcher
@@ -62,9 +77,7 @@ let watchersStep dispatch state =
             ]
 
         Bulma.tags [
-            prop.classes [
-                Style.MediumTagHeight
-            ]
+            prop.classes [ Style.MediumTagHeight ]
             watchers |> List.map tag |> prop.children
         ]
 
@@ -98,11 +111,8 @@ let genresStep dispatch state =
                     prop.onChange (fun v -> v |> Msg.UserAddedGenre |> dispatch)
 
                     Genre.all
-                    |> List.map (fun (_, s) ->
-                        Html.option [
-                            prop.value s
-                            prop.text s
-                        ])
+                    |> List.map (fun (_, s) -> option s)
+                    |> fun options -> emptyOption :: options
                     |> prop.children
 
                 ]
@@ -141,12 +151,6 @@ let decadeStep dispatch state =
         | [ _; _ ] -> state.Watchers |> List.shuffle |> List.head
         | _ :: (_ :: (watcher :: _)) -> watcher
 
-    let option (decade: string) =
-        Html.option [
-            prop.value decade
-            prop.text decade
-        ]
-
     Html.div [
         prop.children [
             stepTitle "Step Four:" (sprintf "%s, pick a decade." watcher)
@@ -156,21 +160,25 @@ let decadeStep dispatch state =
 
                     Decades.allLabels
                     |> List.map option
+                    |> fun options -> emptyOption :: options
                     |> prop.children
                 ]
             ]
-            nextBtn dispatch (String.IsNullOrWhiteSpace state.Actor)
+            nextBtn dispatch (String.IsNullOrWhiteSpace state.Decade)
         ]
     ]
 
 let result state =
-    Html.div [
-        prop.children [
-            state.Result
-            |> sprintf "Tonight you'll watch: %s"
-            |> Bulma.title.h2
+    match state.Result with
+    | None -> Html.none
+    | Some result ->
+        Html.div [
+            prop.children [
+                result
+                |> sprintf "Tonight you'll watch: %s"
+                |> Bulma.title.h2
+            ]
         ]
-    ]
 
 let render (state: State) (dispatch: Msg -> unit) =
     Html.div [
@@ -198,6 +206,12 @@ let render (state: State) (dispatch: Msg -> unit) =
                                     PageLoader.title "I am loading some awesomeness"
                                 ]
                             ]
+
+                            match state.ErrorMsg with
+                            | None -> Html.none
+                            | Some msg ->
+                                msg
+                                |> ErrorAlert.render (fun _ -> dispatch Msg.UserClickedDismissAlert)
                         ]
                     ]
                 ]
