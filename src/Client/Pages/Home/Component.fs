@@ -47,7 +47,7 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
             state, Cmd.none
         else
             { state with
-                Watchers = state.WatcherInput :: state.Watchers
+                Watchers = state.WatcherInput |> List.singleton |> List.append state.Watchers
                 WatcherInput = ""
             },
             Cmd.none
