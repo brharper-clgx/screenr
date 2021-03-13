@@ -1,116 +1,15 @@
-module Index
+﻿module Client.Pages.Home.View
 
 open System
-open Elmish
-open Fable.Remoting.Client
-open Shared
-open Shared.ApiContract
-open Shared.MovieDb
-open Shared.Extensions
-
-let api =
-    Remoting.createApi ()
-    |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.buildProxy<IInternalApi>
-
-type Step =
-    | Watchers = 1
-    | Genres = 2
-    | Actor = 3
-    | Decade = 4
-    | Submitting = 5
-    | Result = 6
-
-module Step =
-    let next (step: Step) = step |> int |> (+) 1 |> enum<Step>
-
-type State =
-    {
-        Actor: string
-        CurrentStep: Step
-        Decade: string
-        Genre: string
-        Result: string
-        Watchers: string list
-        WatcherInput: string
-    }
-
-type Msg =
-    | ServerError of exn
-    | ServerReturnedRecommendation of string
-    | UserAddedWatcher
-    | UserChangedActor of string
-    | UserChangedWatcherInput of string
-    | UserChoseDecade of string
-    | UserAddedGenre of string
-    | UserClickedNext
-
-let init (): State * Cmd<Msg> =
-    let state =
-        {
-            Actor = ""
-            CurrentStep = Step.Watchers
-            Decade = ""
-            Genre = ""
-            Result = ""
-            Watchers = []
-            WatcherInput = ""
-        }
-
-    state, Cmd.none
-
-let update (msg: Msg) (state: State): State * Cmd<Msg> =
-    match msg with
-    | ServerError ex ->
-        { state with
-            Result = ex.Message
-            CurrentStep = Step.Result
-        },
-        Cmd.none
-    | ServerReturnedRecommendation r ->
-        { state with
-            Result = r
-            CurrentStep = Step.Result
-        },
-        Cmd.none
-    | UserAddedGenre genre -> { state with Genre = genre }, Cmd.none
-    | UserAddedWatcher ->
-        { state with
-            Watchers = state.WatcherInput :: state.Watchers
-            WatcherInput = ""
-        },
-        Cmd.none
-    | UserChangedActor actor -> { state with Actor = actor }, Cmd.none
-    | UserChangedWatcherInput input -> { state with WatcherInput = input }, Cmd.none
-    | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
-    | UserClickedNext ->
-        let incrementedState =
-            { state with
-                CurrentStep = Step.next state.CurrentStep
-            }
-
-        match state.CurrentStep with
-        | Step.Watchers ->
-            { incrementedState with
-                Watchers = List.shuffle state.Watchers
-            },
-            Cmd.none
-        | Step.Decade ->
-            let details =
-                {
-                    Actor = state.Actor
-                    Decade = state.Decade
-                    Genre = state.Genre
-                }
-
-            incrementedState, Cmd.OfAsync.either api.GetRecommendation details ServerReturnedRecommendation ServerError
-        | _ -> incrementedState, Cmd.none
-
 open Feliz
 open Feliz.Bulma
 open Feliz.Bulma.PageLoader
+open Shared.Extensions
+open Shared
+open Shared.MovieDb
 open Client.Styles
 open Client.Components
+open Client.Pages.Home.Types
 
 let stepTitle (title: string) (sub: string) =
     Html.div [
@@ -210,9 +109,12 @@ let genresStep dispatch state =
                     |> prop.children
 
                 ]
+
             ]
             nextBtn dispatch (state.Genre = "")
+
         ]
+
     ]
 
 let actorStep dispatch state =
@@ -263,6 +165,7 @@ let decadeStep dispatch state =
             nextBtn dispatch (String.IsNullOrWhiteSpace state.Actor)
         ]
     ]
+
 let result state =
     Html.div [
         prop.children [

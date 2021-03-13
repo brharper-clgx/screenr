@@ -12,7 +12,9 @@
         <None Include="paket.references" />
         <Compile Include="Styles.fs" />
         <Compile Include="Components\Navbar.fs" />
-        <Compile Include="Index.fs" />
+        <Compile Include="Pages\Home\Types.fs" />
+        <Compile Include="Pages\Home\Component.fs" />
+        <Compile Include="Pages\Home\View.fs" />
         <Compile Include="App.fs" />
     </ItemGroup>
     <ItemGroup>
