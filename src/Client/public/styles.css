@@ -1,5 +1,7 @@
-﻿@use "scss/variables";
-@use "scss/tags";
 @import "~bulma/css/bulma.min.css";
 @import "~bulma-pageloader/dist/css/bulma-pageloader.min.css";
+.medium-tag-height {
+  height: 40px;
+}
 
+/*# sourceMappingURL=styles.css.map */

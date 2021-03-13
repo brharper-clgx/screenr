@@ -6,6 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Content Include="public\favicon.png" />
+        <Content Include="public\scss\_tags.scss" />
         <Content Include="public\scss\_variables.scss" />
         <Content Include="public\styles.scss" />
         <None Include="index.html" />

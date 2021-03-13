@@ -44,6 +44,31 @@ let nextBtn dispatch disabled =
     ]
 
 let watchersStep dispatch state =
+    let watcherList dispatch watchers =
+        let tag (watcher: string) =
+            Bulma.tag [
+                tag.isMedium
+                prop.classes [ Bulma.IsPrimary ]
+                prop.children [
+                    Html.text watcher
+                    Html.button [
+                        prop.classes [ Bulma.IsSmall; Bulma.Delete ]
+                        prop.onClick (fun _ ->
+                            watcher
+                            |> Msg.UserClickedDeleteWatcher
+                            |> dispatch)
+                    ]
+                ]
+            ]
+
+        Bulma.tags [
+            prop.classes [
+//                Style.MediumTagHeight
+                "medium-tag-height" // For some reason fable doesn't see type provider
+            ]
+            watchers |> List.map tag |> prop.children
+        ]
+
     Html.div [
         stepTitle "Step One:" "Who's watching?"
         inputContainer [
@@ -55,12 +80,9 @@ let watchersStep dispatch state =
                     prop.onKeyPress (fun (k: KeyboardEvent) -> if k.key = "Enter" then dispatch Msg.UserAddedWatcher)
                 ]
             ]
-
-            state.Watchers |> List.map Bulma.tag |> Html.div
-
+            state.Watchers |> watcherList dispatch
         ]
         nextBtn dispatch (state.Watchers.Length < 1)
-
     ]
 
 let genresStep dispatch state =

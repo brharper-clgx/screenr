@@ -25,9 +25,10 @@ type State =
 type Msg =
     | ServerError of exn
     | ServerReturnedRecommendation of string
+    | UserAddedGenre of string
     | UserAddedWatcher
-    | UserSelectedActor of string
     | UserChangedWatcherInput of string
     | UserChoseDecade of string
-    | UserAddedGenre of string
     | UserClickedNext
+    | UserClickedDeleteWatcher of string
+    | UserSelectedActor of string

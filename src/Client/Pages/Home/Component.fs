@@ -42,16 +42,17 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
         Cmd.none
     | UserAddedGenre genre -> { state with Genre = genre }, Cmd.none
     | UserAddedWatcher ->
-        if String.IsNullOrWhiteSpace state.WatcherInput
-        then
+        if String.IsNullOrWhiteSpace state.WatcherInput then
             state, Cmd.none
         else
             { state with
-                Watchers = state.WatcherInput |> List.singleton |> List.append state.Watchers
+                Watchers =
+                    state.WatcherInput
+                    |> List.singleton
+                    |> List.append state.Watchers
                 WatcherInput = ""
             },
             Cmd.none
-        | UserSelectedActor actor -> { state with Actor = actor }, Cmd.none
     | UserChangedWatcherInput input -> { state with WatcherInput = input }, Cmd.none
     | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
     | UserClickedNext ->
@@ -76,3 +77,9 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
 
             incrementedState, Cmd.OfAsync.either api.GetRecommendation details ServerReturnedRecommendation ServerError
         | _ -> incrementedState, Cmd.none
+    | UserClickedDeleteWatcher watcher ->
+        { state with
+            Watchers = state.Watchers |> List.filter ((<>) watcher)
+        },
+        Cmd.none
+    | UserSelectedActor actor -> { state with Actor = actor }, Cmd.none
