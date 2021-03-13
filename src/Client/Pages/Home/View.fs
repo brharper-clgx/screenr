@@ -63,8 +63,7 @@ let watchersStep dispatch state =
 
         Bulma.tags [
             prop.classes [
-//                Style.MediumTagHeight
-                "medium-tag-height" // For some reason fable doesn't see type provider
+                Style.MediumTagHeight
             ]
             watchers |> List.map tag |> prop.children
         ]
