@@ -87,3 +87,4 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
     | UserClickedDismissAlert ->
         init ()
     | UserSelectedActor actor -> { state with Actor = actor }, Cmd.none
+    | UserUpdatedWatcherList watchers -> { state with Watchers = watchers }, Cmd.none

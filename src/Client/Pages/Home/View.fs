@@ -90,16 +90,7 @@ let watchersStep dispatch state =
     Html.div [
         stepTitle "Step One:" "Who's watching?"
         inputContainer [
-            Bulma.control.div [
-                Bulma.input.text [
-                    input.isLarge
-                    prop.value state.WatcherInput
-                    prop.placeholder "Use 'Enter' to add"
-                    prop.onChange (fun v -> v |> Msg.UserChangedWatcherInput |> dispatch)
-                    prop.onKeyPress (fun (k: KeyboardEvent) -> if k.key = "Enter" then dispatch Msg.UserAddedWatcher)
-                ]
-            ]
-            state.Watchers |> watcherList dispatch
+            TagsInput.render (Msg.UserUpdatedWatcherList >> dispatch) state.Watchers
         ]
         nextBtn dispatch (state.Watchers.Length < 1)
     ]

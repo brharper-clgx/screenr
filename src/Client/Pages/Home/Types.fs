@@ -29,6 +29,7 @@ type Msg =
     | UserAddedGenre of string
     | UserAddedWatcher
     | UserChangedWatcherInput of string
+    | UserUpdatedWatcherList of string list
     | UserChoseDecade of string
     | UserClickedNext
     | UserClickedDeleteWatcher of string
