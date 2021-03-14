@@ -67,6 +67,7 @@ let watchersStep dispatch state =
             TagsInput.render [
                 tagsInput.source state.Watchers
                 tagsInput.updater (Msg.UserUpdatedWatcherList >> dispatch)
+                tagsInput.placeholder "Bob, Ted, Sue"
             ]
         ]
         nextBtn dispatch (state.Watchers.Length < 1)
