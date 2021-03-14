@@ -1,7 +1,6 @@
 ﻿module Client.Pages.Home.View
 
 open System
-open Browser.Types
 open Feliz
 open Feliz.Bulma
 open Feliz.Bulma.PageLoader
@@ -62,35 +61,13 @@ let nextBtn dispatch disabled =
     ]
 
 let watchersStep dispatch state =
-    let watcherList dispatch watchers =
-        let tag (watcher: string) =
-            Bulma.tag [
-                tag.isMedium
-                prop.classes [ Bulma.IsPrimary ]
-                prop.children [
-                    Html.text watcher
-                    Html.button [
-                        prop.classes [
-                            Bulma.IsSmall
-                            Bulma.Delete
-                        ]
-                        prop.onClick (fun _ ->
-                            watcher
-                            |> Msg.UserClickedDeleteWatcher
-                            |> dispatch)
-                    ]
-                ]
-            ]
-
-        Bulma.tags [
-            prop.classes [ Style.MediumTagHeight ]
-            watchers |> List.map tag |> prop.children
-        ]
-
     Html.div [
         stepTitle "Step One:" "Who's watching?"
         inputContainer [
-            TagsInput.render (Msg.UserUpdatedWatcherList >> dispatch) state.Watchers
+            TagsInput.render [
+                tagsInput.source state.Watchers
+                tagsInput.updater (Msg.UserUpdatedWatcherList >> dispatch)
+            ]
         ]
         nextBtn dispatch (state.Watchers.Length < 1)
     ]
@@ -113,14 +90,10 @@ let genresStep dispatch state =
                     |> List.map (fun (_, s) -> option s)
                     |> fun options -> emptyOption :: options
                     |> prop.children
-
                 ]
-
             ]
             nextBtn dispatch (state.Genre = "")
-
         ]
-
     ]
 
 let actorStep dispatch state =
