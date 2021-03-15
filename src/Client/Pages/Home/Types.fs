@@ -17,21 +17,18 @@ type State =
         CurrentStep: Step
         Decade: string
         ErrorMsg: string option
-        Genre: string
+        Genres: string list
         Result: string option
         Watchers: string list
-        WatcherInput: string
     }
 
 type Msg =
     | ServerError of exn
     | ServerReturnedRecommendation of string
-    | UserAddedGenre of string
-    | UserAddedWatcher
-    | UserChangedWatcherInput of string
-    | UserUpdatedWatcherList of string list
     | UserChoseDecade of string
     | UserClickedNext
     | UserClickedDeleteWatcher of string
     | UserClickedDismissAlert
     | UserSelectedActor of string
+    | UserUpdatedGenres of string list
+    | UserUpdatedWatchers of string list

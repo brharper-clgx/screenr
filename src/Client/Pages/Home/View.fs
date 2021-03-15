@@ -66,7 +66,7 @@ let watchersStep dispatch state =
         inputContainer [
             TagsInput.render [
                 tagsInput.source state.Watchers
-                tagsInput.updater (Msg.UserUpdatedWatcherList >> dispatch)
+                tagsInput.updater (Msg.UserUpdatedWatchers >> dispatch)
                 tagsInput.placeholder "Bob, Ted, Sue"
             ]
         ]
@@ -83,17 +83,15 @@ let genresStep dispatch state =
         prop.children [
             stepTitle "Step Two:" (sprintf "%s, pick a genre." watcher)
             inputContainer [
-                Bulma.select [
-                    select.isLarge
-                    prop.onChange (fun v -> v |> Msg.UserAddedGenre |> dispatch)
-
-                    Genre.all
-                    |> List.map (fun (_, s) -> option s)
-                    |> fun options -> emptyOption :: options
-                    |> prop.children
+                TagsInput.render [
+                    tagsInput.source state.Genres
+                    tagsInput.updater (Msg.UserUpdatedGenres >> dispatch)
+                    tagsInput.placeholder "Action, Fantasy, Horror"
+                    tagsInput.autoCompleteSource (Genre.all |> List.map snd)
+                    tagsInput.allowOnlyAutoCompleteValues true
                 ]
             ]
-            nextBtn dispatch (state.Genre = "")
+            nextBtn dispatch (state.Genres = [])
         ]
     ]
 

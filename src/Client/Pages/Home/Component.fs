@@ -19,10 +19,9 @@ let init (): State * Cmd<Msg> =
             CurrentStep = Step.Watchers
             Decade = ""
             ErrorMsg = None
-            Genre = ""
+            Genres = []
             Result = None
             Watchers = []
-            WatcherInput = ""
         }
 
     state, Cmd.none
@@ -42,20 +41,7 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
             CurrentStep = Step.Result
         },
         Cmd.none
-    | UserAddedGenre genre -> { state with Genre = genre }, Cmd.none
-    | UserAddedWatcher ->
-        if String.IsNullOrWhiteSpace state.WatcherInput then
-            state, Cmd.none
-        else
-            { state with
-                Watchers =
-                    state.WatcherInput
-                    |> List.singleton
-                    |> List.append state.Watchers
-                WatcherInput = ""
-            },
-            Cmd.none
-    | UserChangedWatcherInput input -> { state with WatcherInput = input }, Cmd.none
+    | UserUpdatedGenres genre -> { state with Genres = genre }, Cmd.none
     | UserChoseDecade decade -> { state with Decade = decade }, Cmd.none
     | UserClickedNext ->
         let incrementedState =
@@ -74,7 +60,7 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
                 {
                     Actor = state.Actor
                     Decade = state.Decade
-                    Genre = state.Genre
+                    Genres = state.Genres
                 }
 
             incrementedState, Cmd.OfAsync.either api.GetRecommendation details ServerReturnedRecommendation ServerError
@@ -87,4 +73,4 @@ let update (msg: Msg) (state: State): State * Cmd<Msg> =
     | UserClickedDismissAlert ->
         init ()
     | UserSelectedActor actor -> { state with Actor = actor }, Cmd.none
-    | UserUpdatedWatcherList watchers -> { state with Watchers = watchers }, Cmd.none
+    | UserUpdatedWatchers watchers -> { state with Watchers = watchers }, Cmd.none
