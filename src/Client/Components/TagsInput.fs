@@ -15,6 +15,7 @@ module Const =
     let placeholder = "placeholder"
     let autoSource = "autoCompleteSource"
     let onlyAuto = "allowOnlyAutoCompleteValues"
+    let delimiter = "delimiter"
 
 type ITagsInputProperty =
     interface
@@ -26,7 +27,7 @@ type tagsInput =
     static member inline autoCompleteSource(src: string list): ITagsInputProperty = unbox (Const.autoSource, src)
     static member inline allowOnlyAutoCompleteValues(value: bool): ITagsInputProperty = unbox (Const.onlyAuto, value)
     static member inline source(tags: string list): ITagsInputProperty = unbox (Const.source, tags)
-    //    static member inline delimiter (value:char) : ITagsInputProperty = unbox ("delimiter", value)
+    static member inline delimiter (value:string) : ITagsInputProperty = unbox (Const.delimiter, value)
     static member inline placeholder(value: string): ITagsInputProperty = unbox (Const.placeholder, value)
 //    static member inline allowDuplicates (value:bool) : ITagsInputProperty = unbox ("allowDuplicates", value)
 
@@ -78,11 +79,11 @@ module TagsInput =
 
     let autoOp (v: string) = Html.option [ prop.value v ]
 
-    let private build updater placeholder autoSource (onlyAuto: bool) source =
+    let private build updater placeholder autoSource (onlyAuto: bool) delimiter source =
         let id = Guid.NewGuid() |> sprintf "%A"
         let autoId = sprintf "auto-%s" id
         let mutable currentVal = ""
-        let isUpdateKey key = key = "," || key = "Enter"
+        let isUpdateKey key = key = delimiter || key = "Enter"
 
         let onKeyDown (ke: KeyboardEvent) =
             match isUpdateKey ke.key, onlyAuto with
@@ -128,7 +129,8 @@ module TagsInput =
             |> Props.setDefault (Const.onlyAuto, false)
             |> Props.setDefault (Const.placeholder, "enter items...")
             |> Props.setDefault (Const.source, [])
-            |> Props.setDefault (Const.updater, (fun _ -> ()))
+            |> Props.setDefault (Const.updater, fun _ -> ())
+            |> Props.setDefault (Const.delimiter, "Enter")
 
         let source =
             props' |> Props.get<string list> Const.source
@@ -145,4 +147,6 @@ module TagsInput =
 
         let onlyAuto = props' |> Props.get<bool> Const.onlyAuto
 
-        build updater placeholder autoSrc onlyAuto source
+        let delimiter = props' |> Props.get<string> Const.delimiter
+
+        build updater placeholder autoSrc onlyAuto delimiter source

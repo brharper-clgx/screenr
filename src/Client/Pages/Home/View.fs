@@ -68,6 +68,7 @@ let watchersStep dispatch state =
                 tagsInput.source state.Watchers
                 tagsInput.updater (Msg.UserUpdatedWatchers >> dispatch)
                 tagsInput.placeholder "Bob, Ted, Sue"
+                tagsInput.delimiter ","
             ]
         ]
         nextBtn dispatch (state.Watchers.Length < 1)
@@ -87,6 +88,7 @@ let genresStep dispatch state =
                     tagsInput.source state.Genres
                     tagsInput.updater (Msg.UserUpdatedGenres >> dispatch)
                     tagsInput.placeholder "Action, Fantasy, Horror"
+                    tagsInput.delimiter ","
                     tagsInput.autoCompleteSource (Genre.all |> List.map snd)
                     tagsInput.allowOnlyAutoCompleteValues true
                 ]
