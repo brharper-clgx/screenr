@@ -24,10 +24,7 @@ type ITagsInputProperty =
 type tagsInput =
     static member inline updater(fn: string list -> unit): ITagsInputProperty = unbox (Const.updater, fn)
     static member inline autoCompleteSource(src: string list): ITagsInputProperty = unbox (Const.autoSource, src)
-
-    static member inline allowOnlyAutoCompleteValues(value: bool): ITagsInputProperty =
-        unbox ("allowOnlyAutoCompleteValues", value)
-
+    static member inline allowOnlyAutoCompleteValues(value: bool): ITagsInputProperty = unbox (Const.onlyAuto, value)
     static member inline source(tags: string list): ITagsInputProperty = unbox (Const.source, tags)
     //    static member inline delimiter (value:char) : ITagsInputProperty = unbox ("delimiter", value)
     static member inline placeholder(value: string): ITagsInputProperty = unbox (Const.placeholder, value)
