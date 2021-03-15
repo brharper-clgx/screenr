@@ -14,7 +14,10 @@
         <Compile Include="Styles.fs" />
         <Compile Include="Components\Navbar.fs" />
         <Compile Include="Components\ErrorAlert.fs" />
-        <Compile Include="Components\TagsInput.fs" />
+        <Compile Include="Components\Tags\Tag.fs" />
+        <Compile Include="Components\Tags\List.fs" />
+        <Compile Include="Components\Tags\Component.fs" />
+        <Compile Include="Components\Tags\Input.fs" />
         <Compile Include="Pages\Home\Types.fs" />
         <Compile Include="Pages\Home\Component.fs" />
         <Compile Include="Pages\Home\View.fs" />

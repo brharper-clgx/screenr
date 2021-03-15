@@ -4,11 +4,14 @@ open System
 open Feliz
 open Feliz.Bulma
 open Feliz.Bulma.PageLoader
+
 open Shared
 open Shared.Extensions
 open Shared.MovieDb
+
 open Client.Styles
 open Client.Components
+open Client.Components.Tags
 open Client.Pages.Home.Types
 
 let option (v: string) =
