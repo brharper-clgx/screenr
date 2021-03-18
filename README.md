@@ -6,6 +6,7 @@ You'll need to install the following pre-requisites in order to build SAFE appli
 * The [.NET Core SDK](https://www.microsoft.com/net/download) 3.1 or higher.
 * [npm](https://nodejs.org/en/download/) package manager.
 * [Node LTS](https://nodejs.org/en/download/).
+* [SASS CLI](https://sass-lang.com/documentation/cli)
 
 Before you run the project **for the first time only** you must install dotnet "local tools" with this command:
 
